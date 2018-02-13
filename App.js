@@ -28,10 +28,42 @@ const styles = StyleSheet.create({
 
 type Props = {};
 export default class App extends Component<Props> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      value: "",
+      items: []
+    };
+
+    this.handleAddItem = this.handleAddItem.bind(this);
+  }
+
+  handleAddItem() {
+    if (!this.state.value) return;
+
+    const newItems = [
+      ...this.state.items,
+      {
+        key: Date.now(),
+        text: this.state.value,
+        complete: false
+      }
+    ];
+
+    this.setState({
+      items: newItems,
+      value: ""
+    });
+  }
+
   render() {
     return (
       <View style={styles.container}>
-        <Header/>
+        <Header
+          value={this.state.value}
+          onAddItem={this.handleAddItem}
+          onChange={(value) => this.setState({value})}/>
         <View style={styles.content}>
 
         </View>
