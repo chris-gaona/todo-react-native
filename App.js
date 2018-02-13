@@ -32,11 +32,26 @@ export default class App extends Component<Props> {
     super(props);
 
     this.state = {
+      allComplete: false,
       value: "",
       items: []
     };
 
     this.handleAddItem = this.handleAddItem.bind(this);
+    this.handleToggleAllComplete = this.handleToggleAllComplete.bind(this);
+  }
+
+  handleToggleAllComplete() {
+    const complete = !this.state.allComplete;
+    const newItems = this.state.items.map(item => ({
+      ...item,
+        complete
+    }));
+
+    this.setState({
+      items: newItems,
+      allComplete: complete
+    });
   }
 
   handleAddItem() {
@@ -63,7 +78,8 @@ export default class App extends Component<Props> {
         <Header
           value={this.state.value}
           onAddItem={this.handleAddItem}
-          onChange={(value) => this.setState({value})}/>
+          onChange={(value) => this.setState({value})}
+          onToggleAllComplete={this.handleToggleAllComplete}/>
         <View style={styles.content}>
 
         </View>
