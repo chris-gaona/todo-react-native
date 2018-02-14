@@ -56,14 +56,16 @@ export default class App extends Component<Props> {
   }
 
   componentWillMount() {
-    // AsyncStorage.getItem("items").then(json => {
-    //   try {
-    //     const items = JSON.parse(json);
-    //     this.setSource(items, items);
-    //   } catch (e) {
-    //
-    //   }
-    // })
+    AsyncStorage.getItem("items").then(json => {
+      try {
+        const items = JSON.parse(json);
+        if (items !== null) {
+          this.setSource(items, items);
+        }
+      } catch (e) {
+
+      }
+    });
   }
 
   setSource(items, itemsDatasource, otherState = {}) {
@@ -71,7 +73,9 @@ export default class App extends Component<Props> {
       items,
       dataSource: itemsDatasource,
       ...otherState
-    })
+    });
+
+    AsyncStorage.setItem("items", JSON.stringify(items));
   }
 
   handleClearComplete() {
