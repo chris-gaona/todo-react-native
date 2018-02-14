@@ -5,7 +5,7 @@
  */
 
 import React, {Component} from 'react';
-import {FlatList, Keyboard, Platform, StyleSheet, View} from 'react-native';
+import {FlatList, Keyboard, Platform, StyleSheet, View, AsyncStorage} from 'react-native';
 import Header from "./App/Components/Header";
 import Footer from "./App/Components/Footer";
 import Todo from "./App/Components/Todo";
@@ -27,10 +27,8 @@ const styles = StyleSheet.create({
 
 type Props = {};
 
-let allItems = [];
-
-const filterItems = (filter) => {
-  return allItems.filter(item => {
+const filterItems = (filter, items) => {
+  return items.filter(item => {
     if (filter === "ALL") return true;
     if (filter === "COMPLETED") return item.complete;
     if (filter === "ACTIVE") return !item.complete;
@@ -45,6 +43,7 @@ export default class App extends Component<Props> {
       allComplete: false,
       value: "",
       items: [],
+      dataSource: [],
       filter: "ALL"
     };
 
@@ -56,34 +55,44 @@ export default class App extends Component<Props> {
     this.handleClearComplete = this.handleClearComplete.bind(this);
   }
 
-  handleClearComplete() {
-    allItems = filterItems("ACTIVE");
+  componentWillMount() {
+    // AsyncStorage.getItem("items").then(json => {
+    //   try {
+    //     const items = JSON.parse(json);
+    //     this.setSource(items, items);
+    //   } catch (e) {
+    //
+    //   }
+    // })
+  }
+
+  setSource(items, itemsDatasource, otherState = {}) {
     this.setState({
-      items: allItems
+      items,
+      dataSource: itemsDatasource,
+      ...otherState
     })
+  }
+
+  handleClearComplete() {
+    const newItems = filterItems("ACTIVE", this.state.items);
+    this.setSource(newItems, filterItems(this.state.filter, newItems));
   }
 
   handleFilter(filter) {
-    const filteredItems = filterItems(filter);
-
-    this.setState({
-      items: filteredItems,
-      filter: filter
-    });
+    this.setSource(this.state.items, filterItems(filter, this.state.items), {filter});
   }
 
   handleRemoveItem(key) {
-    allItems = allItems.filter(item => {
+    const newItems = this.state.items.filter(item => {
       return item.key !== key;
     });
 
-    this.setState({
-      items: filterItems(this.state.filter)
-    })
+    this.setSource(newItems, filterItems(this.state.filter, newItems));
   }
 
   handleToggleComplete(key, complete) {
-    allItems = allItems.map(item => {
+    const newItems = this.state.items.map(item => {
       if (item.key !== key) return item;
       return {
         ...item,
@@ -91,37 +100,32 @@ export default class App extends Component<Props> {
       }
     });
 
-    this.setState({
-      items: filterItems(this.state.filter)
-    });
+    this.setSource(newItems, filterItems(this.state.filter, newItems));
   }
 
   handleToggleAllComplete() {
     const complete = !this.state.allComplete;
-    allItems = allItems.map(item => ({
+    const newItems = this.state.items.map(item => ({
       ...item,
         complete
     }));
 
-    this.setState({
-      items: filterItems(this.state.filter),
-      allComplete: complete
-    });
+    this.setSource(newItems, filterItems(this.state.filter, newItems), {allComplete: complete});
   }
 
   handleAddItem() {
     if (!this.state.value) return;
 
-    allItems.push({
-      key: Date.now().toString(),
-      text: this.state.value,
-      complete: false
-    });
+    const newItems = [
+      ...this.state.items,
+      {
+        key: Date.now().toString(),
+        text: this.state.value,
+        complete: false
+      }
+    ];
 
-    this.setState({
-      items: filterItems(this.state.filter),
-      value: ""
-    });
+    this.setSource(newItems, filterItems(this.state.filter, newItems), {value: ""});
   }
 
   render() {
@@ -134,11 +138,15 @@ export default class App extends Component<Props> {
           onToggleAllComplete={this.handleToggleAllComplete}/>
         <FlatList
           style={styles.list}
-          data={this.state.items}
+          data={this.state.dataSource}
           renderItem={({item}) => <Todo onComplete={(complete) => this.handleToggleComplete(item.key, complete)} onRemove={() => this.handleRemoveItem(item.key)} item={item}/>}
           onScroll={() => Keyboard.dismiss()}
         />
-        <Footer count={filterItems("ACTIVE").length} filter={this.state.filter} onFilter={this.handleFilter} onClearComplete={this.handleClearComplete}/>
+        <Footer
+          count={filterItems("ACTIVE", this.state.items).length}
+          filter={this.state.filter}
+          onFilter={this.handleFilter}
+          onClearComplete={this.handleClearComplete}/>
       </View>
     );
   }
