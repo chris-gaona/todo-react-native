@@ -53,6 +53,14 @@ export default class App extends Component<Props> {
     this.handleToggleComplete = this.handleToggleComplete.bind(this);
     this.handleRemoveItem = this.handleRemoveItem.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
+    this.handleClearComplete = this.handleClearComplete.bind(this);
+  }
+
+  handleClearComplete() {
+    allItems = filterItems("ACTIVE");
+    this.setState({
+      items: allItems
+    })
   }
 
   handleFilter(filter) {
@@ -130,7 +138,7 @@ export default class App extends Component<Props> {
           renderItem={({item}) => <Todo onComplete={(complete) => this.handleToggleComplete(item.key, complete)} onRemove={() => this.handleRemoveItem(item.key)} item={item}/>}
           onScroll={() => Keyboard.dismiss()}
         />
-        <Footer count={filterItems("ACTIVE").length} filter={this.state.filter} onFilter={this.handleFilter}/>
+        <Footer count={filterItems("ACTIVE").length} filter={this.state.filter} onFilter={this.handleFilter} onClearComplete={this.handleClearComplete}/>
       </View>
     );
   }
