@@ -4,15 +4,11 @@
  * @flow
  */
 
-import React, { Component } from 'react';
-import {
-  View,
-  StyleSheet,
-  Platform, FlatList, Text, Keyboard
-} from 'react-native';
+import React, {Component} from 'react';
+import {FlatList, Keyboard, Platform, StyleSheet, View} from 'react-native';
 import Header from "./App/Components/Header";
 import Footer from "./App/Components/Footer";
-import Separator from "./App/Components/Separator";
+import Todo from "./App/Components/Todo";
 
 const styles = StyleSheet.create({
   container: {
@@ -22,16 +18,10 @@ const styles = StyleSheet.create({
       ios: { paddingTop: 30 }
     })
   },
-  content: {
-    flex: 1
-  },
   list: {
+    flex: 1,
     backgroundColor: "#fff",
-  },
-  item: {
-    padding: 15,
-    fontSize: 25,
-    color: "#4d4d4d",
+    padding: 16
   }
 });
 
@@ -48,6 +38,21 @@ export default class App extends Component<Props> {
 
     this.handleAddItem = this.handleAddItem.bind(this);
     this.handleToggleAllComplete = this.handleToggleAllComplete.bind(this);
+    this.handleToggleComplete = this.handleToggleComplete.bind(this);
+  }
+
+  handleToggleComplete(key, complete) {
+    const newItems = this.state.items.map(item => {
+      if (item.key !== key) return item;
+      return {
+        ...item,
+        complete
+      }
+    });
+
+    this.setState({
+      items: newItems,
+    });
   }
 
   handleToggleAllComplete() {
@@ -89,14 +94,12 @@ export default class App extends Component<Props> {
           onAddItem={this.handleAddItem}
           onChange={(value) => this.setState({value})}
           onToggleAllComplete={this.handleToggleAllComplete}/>
-        <View style={styles.content}>
-          <FlatList
-            style={styles.list}
-            data={this.state.items}
-            renderItem={({item}) => <View><Text style={styles.item}>{item.text}</Text><Separator/></View>}
-            onScroll={() => Keyboard.dismiss()}
-          />
-        </View>
+        <FlatList
+          style={styles.list}
+          data={this.state.items}
+          renderItem={({item}) => <Todo onComplete={(complete) => this.handleToggleComplete(item.key, complete)} item={item}/>}
+          onScroll={() => Keyboard.dismiss()}
+        />
         <Footer/>
       </View>
     );
