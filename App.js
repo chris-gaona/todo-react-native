@@ -130,7 +130,7 @@ export default class App extends Component<Props> {
           renderItem={({item}) => <Todo onComplete={(complete) => this.handleToggleComplete(item.key, complete)} onRemove={() => this.handleRemoveItem(item.key)} item={item}/>}
           onScroll={() => Keyboard.dismiss()}
         />
-        <Footer filter={this.state.filter} onFilter={this.handleFilter}/>
+        <Footer count={filterItems("ACTIVE").length} filter={this.state.filter} onFilter={this.handleFilter}/>
       </View>
     );
   }
