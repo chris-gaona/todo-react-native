@@ -5,7 +5,7 @@
  */
 
 import React, {Component} from 'react';
-import {FlatList, Keyboard, Platform, StyleSheet, View, AsyncStorage} from 'react-native';
+import {FlatList, Keyboard, Platform, StyleSheet, View, AsyncStorage, ActivityIndicator} from 'react-native';
 import Header from "./App/Components/Header";
 import Footer from "./App/Components/Footer";
 import Todo from "./App/Components/Todo";
@@ -22,6 +22,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     padding: 16,
+  },
+  loading: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,.2)"
   }
 });
 
@@ -44,7 +54,8 @@ export default class App extends Component<Props> {
       value: "",
       items: [],
       dataSource: [],
-      filter: "ALL"
+      filter: "ALL",
+      loading: true
     };
 
     this.handleAddItem = this.handleAddItem.bind(this);
@@ -60,10 +71,16 @@ export default class App extends Component<Props> {
       try {
         const items = JSON.parse(json);
         if (items !== null) {
-          this.setSource(items, items);
+          this.setSource(items, items, {loading: false});
+        } else {
+          this.setState({
+            loading: false
+          })
         }
       } catch (e) {
-
+        this.setState({
+          loading: false
+        })
       }
     });
   }
@@ -151,6 +168,11 @@ export default class App extends Component<Props> {
           filter={this.state.filter}
           onFilter={this.handleFilter}
           onClearComplete={this.handleClearComplete}/>
+        {this.state.loading && <View style={styles.loading}>
+          <ActivityIndicator
+            animating
+            size="large"/>
+        </View>}
       </View>
     );
   }
