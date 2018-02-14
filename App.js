@@ -21,11 +21,22 @@ const styles = StyleSheet.create({
   list: {
     flex: 1,
     backgroundColor: "#fff",
-    padding: 16
+    padding: 16,
   }
 });
 
 type Props = {};
+
+let allItems = [];
+
+const filterItems = (filter) => {
+  return allItems.filter(item => {
+    if (filter === "ALL") return true;
+    if (filter === "COMPLETED") return item.complete;
+    if (filter === "ACTIVE") return !item.complete;
+  })
+};
+
 export default class App extends Component<Props> {
   constructor(props) {
     super(props);
@@ -33,27 +44,38 @@ export default class App extends Component<Props> {
     this.state = {
       allComplete: false,
       value: "",
-      items: []
+      items: [],
+      filter: "ALL"
     };
 
     this.handleAddItem = this.handleAddItem.bind(this);
     this.handleToggleAllComplete = this.handleToggleAllComplete.bind(this);
     this.handleToggleComplete = this.handleToggleComplete.bind(this);
     this.handleRemoveItem = this.handleRemoveItem.bind(this);
+    this.handleFilter = this.handleFilter.bind(this);
+  }
+
+  handleFilter(filter) {
+    const filteredItems = filterItems(filter);
+
+    this.setState({
+      items: filteredItems,
+      filter: filter
+    });
   }
 
   handleRemoveItem(key) {
-    const newItems = this.state.items.filter(item => {
+    allItems = allItems.filter(item => {
       return item.key !== key;
     });
 
     this.setState({
-      items: newItems
+      items: filterItems(this.state.filter)
     })
   }
 
   handleToggleComplete(key, complete) {
-    const newItems = this.state.items.map(item => {
+    allItems = allItems.map(item => {
       if (item.key !== key) return item;
       return {
         ...item,
@@ -62,19 +84,19 @@ export default class App extends Component<Props> {
     });
 
     this.setState({
-      items: newItems,
+      items: filterItems(this.state.filter)
     });
   }
 
   handleToggleAllComplete() {
     const complete = !this.state.allComplete;
-    const newItems = this.state.items.map(item => ({
+    allItems = allItems.map(item => ({
       ...item,
         complete
     }));
 
     this.setState({
-      items: newItems,
+      items: filterItems(this.state.filter),
       allComplete: complete
     });
   }
@@ -82,17 +104,14 @@ export default class App extends Component<Props> {
   handleAddItem() {
     if (!this.state.value) return;
 
-    const newItems = [
-      ...this.state.items,
-      {
-        key: Date.now().toString(),
-        text: this.state.value,
-        complete: false
-      }
-    ];
+    allItems.push({
+      key: Date.now().toString(),
+      text: this.state.value,
+      complete: false
+    });
 
     this.setState({
-      items: newItems,
+      items: filterItems(this.state.filter),
       value: ""
     });
   }
@@ -111,7 +130,7 @@ export default class App extends Component<Props> {
           renderItem={({item}) => <Todo onComplete={(complete) => this.handleToggleComplete(item.key, complete)} onRemove={() => this.handleRemoveItem(item.key)} item={item}/>}
           onScroll={() => Keyboard.dismiss()}
         />
-        <Footer/>
+        <Footer filter={this.state.filter} onFilter={this.handleFilter}/>
       </View>
     );
   }

@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginBottom: 15
+    marginVertical: 15,
   },
   item: {
     fontSize: 25,
