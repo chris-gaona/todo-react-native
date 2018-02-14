@@ -8,10 +8,11 @@ import React, { Component } from 'react';
 import {
   View,
   StyleSheet,
-  Platform
+  Platform, FlatList, Text, Keyboard
 } from 'react-native';
 import Header from "./App/Components/Header";
 import Footer from "./App/Components/Footer";
+import Separator from "./App/Components/Separator";
 
 const styles = StyleSheet.create({
   container: {
@@ -23,6 +24,14 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1
+  },
+  list: {
+    backgroundColor: "#fff",
+  },
+  item: {
+    padding: 15,
+    fontSize: 25,
+    color: "#4d4d4d",
   }
 });
 
@@ -60,7 +69,7 @@ export default class App extends Component<Props> {
     const newItems = [
       ...this.state.items,
       {
-        key: Date.now(),
+        key: Date.now().toString(),
         text: this.state.value,
         complete: false
       }
@@ -81,7 +90,12 @@ export default class App extends Component<Props> {
           onChange={(value) => this.setState({value})}
           onToggleAllComplete={this.handleToggleAllComplete}/>
         <View style={styles.content}>
-
+          <FlatList
+            style={styles.list}
+            data={this.state.items}
+            renderItem={({item}) => <View><Text style={styles.item}>{item.text}</Text><Separator/></View>}
+            onScroll={() => Keyboard.dismiss()}
+          />
         </View>
         <Footer/>
       </View>
