@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Switch, Text, View} from "react-native";
+import {StyleSheet, Switch, Text, TouchableOpacity, View} from "react-native";
 import Separator from "./Separator";
 
 const styles = StyleSheet.create({
@@ -19,6 +19,10 @@ const styles = StyleSheet.create({
   },
   complete: {
     textDecorationLine: "line-through"
+  },
+  destroy: {
+    fontSize: 20,
+    color: "#cc9a9a"
   }
 });
 
@@ -37,6 +41,9 @@ const Todo = props => {
             {props.item.text}
           </Text>
         </View>
+        <TouchableOpacity onPress={props.onRemove}>
+          <Text style={styles.destroy}>X</Text>
+        </TouchableOpacity>
       </View>
       <Separator/>
     </View>

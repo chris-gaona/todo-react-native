@@ -39,6 +39,17 @@ export default class App extends Component<Props> {
     this.handleAddItem = this.handleAddItem.bind(this);
     this.handleToggleAllComplete = this.handleToggleAllComplete.bind(this);
     this.handleToggleComplete = this.handleToggleComplete.bind(this);
+    this.handleRemoveItem = this.handleRemoveItem.bind(this);
+  }
+
+  handleRemoveItem(key) {
+    const newItems = this.state.items.filter(item => {
+      return item.key !== key;
+    });
+
+    this.setState({
+      items: newItems
+    })
   }
 
   handleToggleComplete(key, complete) {
@@ -97,7 +108,7 @@ export default class App extends Component<Props> {
         <FlatList
           style={styles.list}
           data={this.state.items}
-          renderItem={({item}) => <Todo onComplete={(complete) => this.handleToggleComplete(item.key, complete)} item={item}/>}
+          renderItem={({item}) => <Todo onComplete={(complete) => this.handleToggleComplete(item.key, complete)} onRemove={() => this.handleRemoveItem(item.key)} item={item}/>}
           onScroll={() => Keyboard.dismiss()}
         />
         <Footer/>
