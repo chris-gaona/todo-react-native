@@ -64,6 +64,8 @@ export default class App extends Component<Props> {
     this.handleRemoveItem = this.handleRemoveItem.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
     this.handleClearComplete = this.handleClearComplete.bind(this);
+    this.handleUpdateText = this.handleUpdateText.bind(this);
+    this.handleToggleEditing = this.handleToggleEditing.bind(this);
   }
 
   componentWillMount() {
@@ -93,6 +95,28 @@ export default class App extends Component<Props> {
     });
 
     AsyncStorage.setItem("items", JSON.stringify(items));
+  }
+
+  handleUpdateText(key, text) {
+    const newItems = this.state.items.map(item => {
+      if (item.key !== key) return item;
+      return {
+        ...item,
+        text
+      }
+    });
+    this.setSource(newItems, filterItems(this.state.filter, newItems));
+  }
+
+  handleToggleEditing(key, editing) {
+    const newItems = this.state.items.map(item => {
+      if (item.key !== key) return item;
+      return {
+        ...item,
+        editing
+      }
+    });
+    this.setSource(newItems, filterItems(this.state.filter, newItems));
   }
 
   handleClearComplete() {
@@ -160,7 +184,11 @@ export default class App extends Component<Props> {
         <FlatList
           style={styles.list}
           data={this.state.dataSource}
-          renderItem={({item}) => <Todo onComplete={(complete) => this.handleToggleComplete(item.key, complete)} onRemove={() => this.handleRemoveItem(item.key)} item={item}/>}
+          renderItem={({item}) => <Todo
+            onComplete={(complete) => this.handleToggleComplete(item.key, complete)}
+            onRemove={() => this.handleRemoveItem(item.key)} item={item}
+            onUpdate={(text) => this.handleUpdateText(item.key, text)}
+            onToggleEdit={(editing) => this.handleToggleEditing(item.key, editing)}/>}
           onScroll={() => Keyboard.dismiss()}
         />
         <Footer
